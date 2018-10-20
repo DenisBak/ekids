@@ -91,7 +91,7 @@ c.bind_all('<Key>', move_ship)
 
 Если мы запустим этот код, то увидим на экране окошко со своим кораблем из первого урока, но если мы нажемем клавиши "вверх", "вниз", "вправо" и "влево" на клавиатуре, мы увидим, как они называются в python.
 
-![Окно](https://github.com/trusiwko/Python/raw/master/eKIDS/Lesson2/img/img1.png)
+![Окно](https://github.com/usbo/ekids/raw/master/Python/Lesson2/img/img1.png)
 
 Теперь мы знаем, что при нажатии клавиши "Вверх" значение свойства `event.keysym` равно `'Up'`, а если нажать "Вниз", то `'Down'` и т.д.
 
