@@ -17,9 +17,9 @@ while time() < end: # бежим пока не достигли time
 	# После
 	score += collision() # Вызываем проверку столкновения
 	# Добавляем:
-    if (int(score / BONUS_SCORE) > bonus):
-        bonus += 1
-        end += TIME_LIMIT
+	if (int(score / BONUS_SCORE) > bonus):
+		bonus += 1
+		end += TIME_LIMIT
 ```
 
 # Добавим бонусных пузырьков
@@ -44,7 +44,7 @@ def create_bubble(t):
 
 Мы добавили новый массив, не забудем удалить из него строки при удалении пузырьков, исправим `del_bubble`:
 
-```pyton
+```python
 def del_bubble(i):
     c.delete(bub_id[i])
     del bub_id[i]
