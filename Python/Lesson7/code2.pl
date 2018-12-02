@@ -186,7 +186,7 @@ def collision():
             if (bub_type[i] == 3):
                 life_count+=1
             if (bub_type[i] == 2 or bub_type[i]== 3):
-                show_hp(life_count)
+                show_hp()
                 if life_count == 3:
                     c.itemconfig(ship2, outline = 'lime')
                 elif life_count == 2:
@@ -209,7 +209,7 @@ time_text = c.create_text(50, 50, text='1111', fill='white')
 score_text = c.create_text(150, 50, fill='white')
 hp_text = c.create_text(250, 50, fill='white')
 
-def show_hp(life_count):
+def show_hp():
     c.itemconfig(hp_text, text=str(life_count))
     
 def show_score(score):
@@ -223,6 +223,8 @@ BONUS_SCORE = 1000 # очки для следующего раунда
 score = 0 # Счет
 bonus = 0 # Бонусный раунд
 end = time() + TIME_LIMIT
+
+show_hp()
 
 # ОСНОВНОЙ ЦИКЛ
 while time() < end: # бежим пока не достигли time
