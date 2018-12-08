@@ -173,6 +173,16 @@ def distance(id1, id2):
 
 BONUS1_TIME = 3 # время действия бонуса с типом 1
 life_count = 3
+BOMB_R = 300
+
+def bomb(b):
+    for i in range(len(bub_id)-1, -1, -1):
+        if distance(b, bub_id[i]) < (BOMB_R + bub_r[i]):
+            if b != bub_id[i]:
+                del_bubble(i)
+    for i in range(len(bub_id)-1, -1, -1):
+        if b == bub_id[i]:
+            del_bubble(i) 
 
 def collision():
     global bonus1_end # чтобы можно было изменить переменную 
@@ -185,20 +195,12 @@ def collision():
                 bonus1_end = time() + BONUS1_TIME # бонус закончится через 5 сек
             if (bub_type[i] == 2):
                 life_count-=1
+                bomb (bub_id[i])
+                show_hp(life_count)
+                break
             if (bub_type[i] == 3):
                 life_count+=1
-            if (bub_type[i] == 2 or bub_type[i]== 3):
                 show_hp(life_count)
-                if life_count == 3:
-                    c.itemconfig(ship2, outline = 'lime')
-                elif life_count == 2:
-                    c.itemconfig(ship2, outline = 'orange')
-                elif life_count == 1:
-                    c.itemconfig(ship2, outline = 'red')
-                elif life_count == 0:
-                    c.itemconfig(ship2, outline = 'darkblue')
-                elif life_count == -1:
-                    end = time()-1
             
             points += (40 - bub_r[i]) + bub_speed[i]
             del_bubble(i)
@@ -212,7 +214,18 @@ score_text = c.create_text(150, 50, fill='white')
 hp_text = c.create_text(250, 50, fill='white')
 
 def show_hp(life_count):
+    global end
     c.itemconfig(hp_text, text=str(life_count))
+    if life_count == 3:
+        c.itemconfig(ship2, outline = 'lime')
+    elif life_count == 2:
+        c.itemconfig(ship2, outline = 'orange')
+    elif life_count == 1:
+        c.itemconfig(ship2, outline = 'red')
+    elif life_count == 0:
+        c.itemconfig(ship2, outline = 'darkblue')
+    elif life_count <= -1:
+        end = time()-1
     
 def show_score(score):
     c.itemconfig(score_text, text=str(score))
