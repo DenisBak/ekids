@@ -251,7 +251,8 @@ def reset():
     end = time() + TIME_LIMIT
     life_count = 3
     show_hp(life_count)
-
+    
+show_hp(life_count)
 # ОСНОВНОЙ ЦИКЛ
 while True:
     while time() < end: # бежим пока не достигли time
@@ -262,7 +263,7 @@ while True:
         if randint(1,150) == 1:
             create_bubble(2)
         if randint(1,450) == 1:
-            create_bubble(3)    
+            create_bubble(3)
         move() # двигаем корабль
         move_bubbles()
         clean_up_bubs()
