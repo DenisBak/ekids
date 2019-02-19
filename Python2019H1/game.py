@@ -22,7 +22,8 @@ class Ground(Sprite):
         self.image = pygame.image.load('images\\ground.png').convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.topleft = x, y
-        self.add(groundGroup);
+        self.add(groundGroup)
+
 
 class Mario(Sprite):
     def __init__(self, x, y, files):
@@ -43,18 +44,20 @@ class Mario(Sprite):
         self.moving = False
         self.jumping = False
         self.direction = D_RIGHT
-        self.velocity = 0
+        self.velocity = 0.0
         self.big = False
 
     def jump(self, vel):
         if self.jumping:
-            return
-        self.jumping = True
-        self.jf = 0
-        self.velocity = vel
+            if self.velocity < 0 and vel == -10:
+                self.velocity -= 0.5
+        else:
+            self.jumping = True
+            self.jf = 0
+            self.velocity = vel
 
     def draw(self):
-        sprite = '';
+        sprite = ''
         if self.jumping:
             if self.direction == D_RIGHT:
                 sprite = 'CR'
@@ -81,7 +84,7 @@ class Mario(Sprite):
 
         blocks = pygame.sprite.spritecollide(mario, groundGroup, False)
         if len(blocks) == 0:
-            self.jump(0) # падение                
+            self.jump(0)  # падение
             
         ''' Прыжки '''
         if self.jumping:
@@ -101,18 +104,16 @@ class Mario(Sprite):
             
             self.velocity += 1
 
-        l,b = self.rect.bottomleft
+        l, b = self.rect.bottomleft
         self.image = self.sprites[sprite][f]
         self.rect = self.image.get_rect()
-        self.rect.bottomleft = l,b
+        self.rect.bottomleft = l, b
         screen.blit(self.image, self.rect.topleft)
-
 
 
 for i in range(20):
     Ground(i*32, 480-32-16)
     Ground(i*32, 480-16)
-
 
 mario = Mario(10, 200, {'AR': ['images\\marioAR.png'],
                         'AL': ['images\\marioAL.png'],
@@ -131,16 +132,16 @@ mario = Mario(10, 200, {'AR': ['images\\marioAR.png'],
 pygame.key.set_repeat(1, 1)
 clock = pygame.time.Clock()
 
-status = pygame.Surface((20,20))
+status = pygame.Surface((20, 20))
 
 inGame = True
 while inGame:
     mario.moving = False
-    for e in pygame.event.get([pygame.QUIT]):
+    for e in pygame.event.get():
         if e.type == pygame.QUIT:
             inGame = False
+            pygame.quit()
             sys.exit()
-            exit()
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
@@ -161,8 +162,8 @@ while inGame:
     mario.draw()
     groundGroup.draw(screen)
 
-    window.blit(screen, (0,0))
-    window.blit(status, (10,10))
+    window.blit(screen, (0, 0))
+    window.blit(status, (10, 10))
 
     pygame.display.flip()
 
