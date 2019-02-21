@@ -23,6 +23,9 @@ T_ACTION_BRICK = 'coinbrick'
 T_PIPE = 'pipe'
 T_CINDER = 'cinder'
 T_FLAGSTICK = 'flagstick'
+T_FLAG = 'flag'
+T_FLAGSTICKBALL = 'flagstickball'
+T_CASTLE = 'castle'
 # Подтипы объекта T_QUESTION
 T_COIN = 1
 T_MUSHROOM = 2
@@ -79,7 +82,10 @@ world_data = {
             [(148, 0)] + [(149, i) for i in range(2)] + [(150, i) for i in range(3)] + [(151, i) for i in range(4)] + [(152, i) for i in range(4)] +
             [(158, 0)] + [(157, i) for i in range(2)] + [(156, i) for i in range(3)] + [(155, i) for i in range(4)] +
             [(181 + i, j) for i in range(8) for j in range(i+1)] + [(189, j) for j in range(8)] + [(198, 0)],
-        T_FLAGSTICK: [(198, 1+i) for i in range(9)]
+        T_FLAGSTICK: [(198, 1+i) for i in range(9)],
+        T_FLAG: [(197.5, 9)],
+        T_FLAGSTICKBALL: [(198, 10)],
+        T_CASTLE: [(202, 0, 1)],
     }
 }
 
@@ -127,6 +133,15 @@ class World:
                         elif objt == T_FLAGSTICK:
                             x, y = coord
                             Flagstick(x * 16 * 2, 400 - y * 16 * 2)
+                        elif objt == T_FLAG:
+                            x, y = coord
+                            Flag(x * 16 * 2, 400 - y * 16 * 2)
+                        elif objt == T_CASTLE:
+                            x, y, t = coord
+                            Castle(x * 16 * 2, 400 - y * 16 * 2, t)
+                        elif objt == T_FLAGSTICKBALL:
+                            x, y = coord
+                            Flagstickball(x * 16 * 2, 400 - y * 16 * 2)
 
 
 class Obj(Sprite):
@@ -144,8 +159,15 @@ class Obj(Sprite):
         self.add(actionGroup)
         self.rect.bottomleft = x, y
         self.disabled = False
+        self.transparent = False  # можно ли проходить сквозь объект
 
     def collide_bottom(self):
+        pass
+
+    def collide_right(self):
+        pass
+
+    def collide_left(self):
         pass
 
     ''' Вызывается, когда Марио столкнулся с объектом '''
@@ -156,20 +178,29 @@ class Obj(Sprite):
         if r.bottom == self.rect.bottom and r.width > r.height:
             if mario.velocity <= 0:
                 self.collide_bottom()
-                mario.new_velocity = 0
-            mario.new_rect.top = self.rect.bottom
+                if not self.transparent:
+                    mario.new_velocity = 0
+            if not self.transparent:
+                mario.new_rect.top = self.rect.bottom
             print("BOTTOM")
-        elif r.left == self.rect.left and r.height > r.width and mario.direction == D_RIGHT:
-            mario.new_rect.right = self.rect.left
+        elif r.left == self.rect.left and r.height > r.width:
+            if mario.direction == D_RIGHT:
+                self.collide_right()
+            if not self.transparent:
+                mario.new_rect.right = self.rect.left
             print("RIGHT")
-        elif r.right == self.rect.right and r.height > r.width and mario.direction == D_LEFT:
-            mario.new_rect.left = self.rect.right
+        elif r.right == self.rect.right and r.height > r.width:
+            if mario.direction == D_LEFT:
+                self.collide_left()
+            if not self.transparent:
+                mario.new_rect.left = self.rect.right
             print("LEFT")
         elif r.top == self.rect.top and r.width > r.height:
-            mario.new_rect.bottom = self.rect.top
+            if not self.transparent:
+                mario.new_rect.bottom = self.rect.top
             print("TOP")
         else:
-            print("SKIP:", self.rect, mario.rect, r)
+            #print("SKIP:", self.rect, mario.rect, r)
             pass
 
     def anim(self):
@@ -187,6 +218,10 @@ pipe_img = pygame.image.load('images\\obj\\pipe1.png').convert_alpha()
 pipe2_img = pygame.image.load('images\\obj\\pipe2.png').convert_alpha()
 cinder_img = pygame.image.load('images\\obj\\cinder.png').convert_alpha()
 flagstick_img = pygame.image.load('images\\obj\\flagstick.png').convert_alpha()
+castle1_img = pygame.image.load('images\\obj\\castle1.png').convert_alpha()
+castle2_img = pygame.image.load('images\\obj\\castle2.png').convert_alpha()
+flag_img = pygame.image.load('images\\obj\\flag.png').convert_alpha()
+flagstickball_img = pygame.image.load('images\\obj\\flagstickball.png').convert_alpha()
 
 class Question(Obj):
     def __init__(self, x, y, t):
@@ -217,6 +252,29 @@ class Cinder(Obj):
 class Flagstick(Obj):
     def __init__(self, x, y):
         Obj.__init__(self, [flagstick_img], x, y)
+        self.transparent = True
+
+
+class Flagstickball(Obj):
+    def __init__(self, x, y):
+        Obj.__init__(self, [flagstickball_img], x, y)
+        self.transparent = True
+
+
+class Flag(Obj):
+    def __init__(self, x, y):
+        Obj.__init__(self, [flag_img], x, y)
+        self.transparent = True
+
+
+class Castle(Obj):
+    def __init__(self, x, y, t):
+        if t == 1:
+            castle = castle1_img
+        else:
+            castle = castle2_img
+        Obj.__init__(self, [castle], x, y)
+        self.transparent = True
 
 
 class Pipe(Obj):
@@ -312,11 +370,12 @@ class Mario(Sprite):
         bl = pygame.sprite.spritecollide(mario_rect, objGroup, False)
         mario_stand = False
         for b in bl:
-            r = mario_rect.rect.clip(b.rect)
-            if r.width > 5:
-                mario_stand = True
-                if mario.velocity >= 0 and mario.jumping:
-                    mario.jumping = False
+            if not b.transparent:
+                r = mario_rect.rect.clip(b.rect)
+                if r.width > 5:
+                    mario_stand = True
+                    if mario.velocity >= 0 and mario.jumping:
+                        mario.jumping = False
         if not mario_stand:
             mario.jump(0)
 
