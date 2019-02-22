@@ -222,6 +222,8 @@ castle1_img = pygame.image.load('images\\obj\\castle1.png').convert_alpha()
 castle2_img = pygame.image.load('images\\obj\\castle2.png').convert_alpha()
 flag_img = pygame.image.load('images\\obj\\flag.png').convert_alpha()
 flagstickball_img = pygame.image.load('images\\obj\\flagstickball.png').convert_alpha()
+coin_imgs = [pygame.image.load('images\\obj\\coin' + str(i+1) + '.png').convert_alpha() for i in range(4)]
+goomba_imgs = [pygame.image.load('images\\obj\\goomba' + str(i+1) + '.png').convert_alpha() for i in range(2)]
 
 class Question(Obj):
     def __init__(self, x, y, t):
@@ -233,7 +235,27 @@ class Question(Obj):
             animGroup.remove(self)
             self.image = question_dis_img
             self.disabled = True
+            xc,yc = self.rect.midtop
+            if self.type == T_COIN:
+                Coin(xc-8, yc)
 
+
+class Coin(Obj):
+    def __init__(self, x, y):
+        Obj.__init__(self, coin_imgs, x, y)
+        self.animf = 0
+
+    def anim(self):
+        Obj.anim(self)
+        self.animf += 1
+        if self.animf <= 25:
+            self.rect = self.rect.move(0, -2)
+        else:
+            self.rect = self.rect.move(0, 2)
+        if self.animf == 50:
+            self.animf = 0
+            self.kill()
+        
 
 class Brick(Obj):
     def __init__(self, x, y):
@@ -296,6 +318,19 @@ class MarioRect(Sprite):
     def __init__(self):
         Sprite.__init__(self)
         self.rect = mario.rect
+
+
+# TODO
+class Goomba(Obj):
+    def __init__(self, x, y, d):
+        Obj.__init__(self, goomba_imgs, x, y)
+        self.direction = d
+
+    def anim(self):
+        if self.direction == D_RIGHT:
+            self.rect = self.rect.move(10, 0)
+        else:
+            self.rect = self.rect.move(-10, 0)
 
 
 class Mario(Sprite):
